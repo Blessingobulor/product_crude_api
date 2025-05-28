@@ -10,115 +10,113 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
-    // declear a function index  for the api
-    public function index(){
-
+    /**
+     * Display a listing of all products.
+     */
+    public function index()
+    {
+        // Retrieve all products from the database
         $products = Product::get();
-        if($products->count() > 0)
 
-        {
-
+        // Check if there are any products
+        if ($products->count() > 0) {
+            // Return product collection as resource
             return ProductResource::collection($products);
-
+        } else {
+            // Return a response if no records are found
+            return response()->json(['message' => 'No record available'], 200);
         }
-
-        else{
-
-                return response()->json(['message' => 'No record available'], 200);
-        }
-
-
     }
-    // function for store product data
 
-    public function store(Request $request){
-        // validating the input field
+    /**
+     * Store a newly created product in the database.
+     */
+    public function store(Request $request)
+    {
+        // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'description' => 'required',
-                'price' => 'required|integer',
-
+            'name'        => 'required|string|max:255',
+            'description' => 'required',
+            'price'       => 'required|integer',
         ]);
 
-        // adding an if statement to check if the fields are validated
+        // Return error response if validation fails
         if ($validator->fails()) {
-                return response()->json([
+            return response()->json([
                 'message' => 'All Fields are Mandatory',
-                'errors'=> $validator->messages(),
+                'errors'  => $validator->messages(),
             ], 422);
         }
 
-        // create the product
+        // Create the product
         $product = Product::create([
-
-            'name' => $request->name,
-            'description' =>  $request->description,
-            'price' => $request->price,
+            'name'        => $request->name,
+            'description' => $request->description,
+            'price'       => $request->price,
         ]);
 
+        // Return success response with product data
         return response()->json([
-
             'message' => 'Product Created Successfully',
-            'data' => new ProductResource($product)
-
-        ],200);
-
+            'data'    => new ProductResource($product),
+        ], 200);
     }
 
-     // function for show product data
-
-    public function show(Product $product){
-
+    /**
+     * Display the specified product.
+     */
+    public function show(Product $product)
+    {
+        // Return a single product as resource
         return new ProductResource($product);
-
     }
 
-     // function for update product data
-    public function update(Request $request, Product $product){
-
-            $validator = Validator::make($request->all(), [
-                    'name' => 'required|string|max:255',
-                    'description' => 'required',
-                    'price' => 'required|integer',
-
+    /**
+     * Update the specified product in the database.
+     */
+    public function update(Request $request, Product $product)
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'name'        => 'required|string|max:255',
+            'description' => 'required',
+            'price'       => 'required|integer',
         ]);
 
-        // adding an if statement to check if the fields are validated
+        // Return error response if validation fails
         if ($validator->fails()) {
-                    return response()->json([
-                    'message' => 'All Fields are Mandatory',
-                    'errors'=> $validator->messages(),
+            return response()->json([
+                'message' => 'All Fields are Mandatory',
+                'errors'  => $validator->messages(),
             ], 422);
         }
 
-        // create the product
+        // Update the product with validated data
         $product->update([
-
-                'name' => $request->name,
-                'description' =>  $request->description,
-                'price' => $request->price,
+            'name'        => $request->name,
+            'description' => $request->description,
+            'price'       => $request->price,
         ]);
 
+        // Return success response with updated product data
         return response()->json([
-
-                'message' => 'Product Updated Successfully',
-                'data' => new ProductResource($product)
-
-        ],200);
-
+            'message' => 'Product Updated Successfully',
+            'data'    => new ProductResource($product),
+        ], 200);
     }
 
-
-     // function for destroy product data
-
-    public function destroy(Product $product){
+    /**
+     * Remove the specified product from the database.
+     */
+    public function destroy(Product $product)
+    {
+        // Delete the product
         $product->delete();
+
+        // Return success response with deleted product data
         return response()->json([
-
-                'message' => 'Product Deleted Successfully',
-                'data' => new ProductResource($product)
-
-        ],200);
-
+            'message' => 'Product Deleted Successfully',
+            'data'    => new ProductResource($product),
+        ], 200);
     }
 }
